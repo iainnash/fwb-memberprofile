@@ -32,6 +32,26 @@ yarn install
 
 
 
+## troubleshooting install
+
+this project is configured for use with `hardhat-deploy-ethers` for easy deployment fixtures. 
+
+this can cause some installation issues[see here](https://github.com/wighawag/hardhat-deploy-ethers/issues/13)
+
+in this case, try the following:
+```bash
+npm install --save-dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers
+```
+and then
+
+```bash
+yarn add hardhat-deploy-ethers
+```
+
+
+
+
+
 ## usage
 
 ```bash
