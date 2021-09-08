@@ -1,6 +1,6 @@
-# seasonpass
+# FWB Profile / seasonpass
 
-seasonpass is an ERC-721 "season pass" NFT for token gated communities/DAO's.
+FWB Profile / seasonpass (working title) is an ERC-721 "member profile" NFT for Friends with Benefits.
 
 this project environment is currently configured with hardhat & typescript.
 
