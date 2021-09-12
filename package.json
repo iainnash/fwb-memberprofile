@@ -1,8 +1,13 @@
 {
-  "name": "fwb-profile",
+  "name": "fwb-memberprofile",
   "author": "@bretth18",
   "license": "MIT",
   "version": "0.0.1",
+  "scripts": {
+    "dev": "npx hardhat node --verbose --show-stack-traces",
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
