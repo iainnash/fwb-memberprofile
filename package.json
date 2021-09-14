@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.10",
+    "@nomiclabs/hardhat-etherscan": "^2.1.6",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^4.3.0",
     "@typechain/hardhat": "^2.3.0",
@@ -25,6 +26,7 @@
     "hardhat-deploy": "^0.8.11",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-spdx-license-identifier": "^2.0.3",
+    "hardhat-tracer": "^1.0.0-alpha.6",
     "solhint": "^3.3.6",
     "ts-node": "^10.2.0",
     "tsconfig-paths": "^3.10.1",
@@ -33,6 +35,7 @@
   "dependencies": {
     "@typechain/ethers-v5": "^7.0.1",
     "hardhat-deploy-ethers": "^0.3.0-beta.10",
+    "solidity-coverage": "^0.7.17",
     "typechain": "^5.1.2"
   }
 }

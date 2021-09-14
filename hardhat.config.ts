@@ -3,6 +3,8 @@ import { HardhatUserConfig, NetworksUserConfig } from 'hardhat/types';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-etherscan';
+
 import '@typechain/hardhat';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
@@ -10,6 +12,9 @@ import 'hardhat-gas-reporter';
 import 'hardhat-spdx-license-identifier';
 import 'tsconfig-paths/register';
 import 'hardhat-abi-exporter';
+import 'hardhat-tracer';
+import 'solidity-coverage';
+
 
 import { accounts } from './utils/accounts';
 
@@ -28,7 +33,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // load .env
 const INFURA_KEY = process.env['INFURA_KEY'];
 const ALCHEMY_KEY = process.env['ALCHEMY_KEY'];
-
+const ETHERSCAN_API_KEY = process.env['ETHERSCAN_API_KEY'];
 
 // Networks config
 const networks: NetworksUserConfig = process.env.TEST
@@ -111,6 +116,11 @@ const config: HardhatUserConfig = {
   gasReporter: {
     currency: 'USD',
   },
+
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
+
 
 };
 
