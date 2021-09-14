@@ -29,7 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Create a deployment named 'FWBMemberProfile'. By default it looks for an artifact with the same name
     const deployFWBMemberProfile = await deploy('FWBMemberProfile', {
         from: deployer,
-        to: tokenOwner,
+        to: deployer,
         contract: 'FWBMemberProfile',
         args: [],
         log: true,   

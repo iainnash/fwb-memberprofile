@@ -22,7 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Create a deployment named 'FWBProtocolRegistry'. By default it looks for an artifact with the same name
     const deployRegistry = await deploy('FWBProtocolRegistry', {
         from: deployer,
-        to: tokenOwner,
+        to: deployer,
         contract: 'FWBProtocolRegistry',
         args: [],
         log: true,   
