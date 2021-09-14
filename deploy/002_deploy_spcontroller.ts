@@ -43,7 +43,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     if (deploySeasonPassController.newlyDeployed) {
         log('\x1b[36m%s\x1b[0m',
             `
-            contract: SeasonPass deployed at ${deploySeasonPassController.address} 
+            contract: SeasonPassController deployed at ${deploySeasonPassController.address} 
             using ${deploySeasonPassController.receipt?.gasUsed} gas. 
             TestToken Owner: ${deploySeasonPassController.receipt?.to}
             Signed from    : ${deploySeasonPassController.receipt?.from}

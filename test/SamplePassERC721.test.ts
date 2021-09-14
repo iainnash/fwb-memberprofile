@@ -49,13 +49,13 @@ describe('SeasonPass', function() {
     it('successfully transfers', async function() {
         const {users, tokenOwner} = await setupTestPass();
 
-        await tokenOwner.SeasonPass.transferFrom(tokenOwner.address, users[1].address, 0);
 
         await expect(
             tokenOwner.SeasonPass.transferFrom(tokenOwner.address, users[1].address, 0)
         )
             .to.emit(tokenOwner.SeasonPass, 'Transfer')
-            .withArgs(tokenOwner.address, users[1].address, 1);
+            .withArgs(tokenOwner.address, users[1].address, 0);
     });
+    
 
 });
