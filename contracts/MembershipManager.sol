@@ -8,23 +8,8 @@ import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-
 // Core membership contract (updatable)
 contract MembershipManager is Ownable, ERC165 {
-    // struct EIP712Signature {
-    //     uint256 deadline;
-    //     uint8 v;
-    //     bytes32 r;
-    //     bytes32 s;
-    // }
-
-    // bytes32 public constant MINT_WITH_SIG_TYPEHASH =
-    //     keccak256("mintWithSig(address user,uint256 nonce,uint256 deadline)");
-    // bytes32 public constant TRANSFER_WITH_SIG_TYPEHASH =
-    //     keccak256(
-    //         "transferWallet(address user,uint256 nonce,uint256 deadline)"
-    //     );
-
     /// Stores address to membership id
     mapping(address => uint256) private addressToId;
     /// Stores membership id to address
@@ -90,6 +75,7 @@ contract MembershipManager is Ownable, ERC165 {
         uint256 id = addressToId[address];
         delete addressToId[address];
         delete idToAddress[id];
+        emit Transfer(address, address(0x0), id);
     }
 
     /// Mint mew membership from the manager account
@@ -111,55 +97,29 @@ contract MembershipManager is Ownable, ERC165 {
             interfaceId == type(IERC721Metadata).interfaceId;
     }
 
-
     function _safeMint(address to) internal {
-        require(addressToId[token] == 0x0);
+        require(addressToId[token] == 0x0, "Token taken");
         uint256 newId = idCounter.increment();
         addressToId[address] = newId;
         idToAddress[newId] = address;
-        emit Transfer(0x0, address, newId);
+        emit Transfer(address(0x0), address, newId);
     }
 
-    // signature permit functions (TODO)
-
-    // function transferWalletWithSig(EIP712Signature memory sig, address from, address to) public {
-    //   require(
-    //           sig.deadline == 0 || sig.deadline >= block.timestamp,
-    //           "Media: mintWithSig expired"
-    //       );
-    //   require(sig == encode (from, to))
-
-    //     bytes32 digest =
-    //           keccak256(
-    //               abi.encodePacked(
-    //                   "\x19\x01",
-    //                   domainSeparator,
-    //                   keccak256(
-    //                       abi.encode(
-    //                           TRANSFER_WITH_SIG_TYPEHASH,
-    //                           data.contentHash,
-    //                           data.metadataHash,
-    //                           bidShares.creator.value,
-    //                           mintWithSigNonces[creator]++,
-    //                           sig.deadline
-    //                       )
-    //                   )
-    //               )
-    //           );
-
-    //       address recoveredAddress = ecrecover(digest, sig.v, sig.r, sig.s);
-
-    //       require(
-    //           recoveredAddress != address(0) && creator == recoveredAddress,
-    //           "Media: Signature invalid"
-    //       );
-
-    //   _transfer(from, to)
-    // }
-
-    // mintWithSig(EIP712Signature memory sig, address) =>
-    //   require(Sig === digest)
-    //   require(hasRole(Recover address sig, updater))
-    //   _safeMint(address)
-
+    /// Mint with signed message data
+    function mintWithSig(
+        address to,
+        bytes calldata data,
+        bytes32 signature
+    ) external {
+        (address toAddress, uint256 deadline) = abi.decode(
+            data,
+            (address, uint256)
+        );
+        require(block.number <= deadline, "Deadline passed");
+        require(toAddress == to, "Address does not match");
+        bytes32 memory hashedMessage = keccak256(data);
+        const sender = recover(hashedMessage, signature);
+        require(sender == manager, "Only signed manager address");
+        _safeMint(to);
+    }
 }
