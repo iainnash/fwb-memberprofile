@@ -12,7 +12,7 @@
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.10",
     "@nomiclabs/hardhat-etherscan": "^2.1.6",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.3.0",
+    "@openzeppelin/contracts": "^4.4.2",
     "@typechain/hardhat": "^2.3.0",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -33,6 +33,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^4.4.2",
     "@typechain/ethers-v5": "^7.0.1",
     "hardhat-deploy-ethers": "^0.3.0-beta.10",
     "solidity-coverage": "^0.7.17",

@@ -1,10 +1,6 @@
-// 001_deploy_token.ts
-
-// Deploy script for TestToken
-
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import 'dotenv/config';
+import "../setup-env";
 /**
  * @param hre  deploy function receives the hardhat runtime env as a parameter
  */ 

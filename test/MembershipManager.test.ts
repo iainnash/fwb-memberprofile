@@ -3,25 +3,75 @@
 import { ethers, deployments, getNamedAccounts } from "hardhat";
 import { expect } from "chai";
 
-import { MembershipManager } from "../types/typechain";
+import {
+  FWBMembershipNFT,
+  FWBMembershipNFT__factory,
+} from "../types/typechain";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 describe("MembershipManager", () => {
-  let membershipManagerInstance: MembershipManager;
+  let membershipManagerInstance: FWBMembershipNFT;
+  let signer: SignerWithAddress;
+  let signer2: SignerWithAddress;
+  let signerAddress: string;
+  let signer2Address: string;
 
   beforeEach(async () => {
-    await deployments.fixture(["MembershipManager"]);
-    const { deployer } = await getNamedAccounts();
+    const { FWBMembership1967Manager } = await deployments.fixture([
+      "FWBMembership1967Manager",
+    ]);
+    // const { deployer } = await getNamedAccounts();
 
-    membershipManagerInstance = await ethers.getContract(
-      "MembershipManager",
-      deployer
+    [signer, signer2] = await ethers.getSigners();
+    [signerAddress, signer2Address] = [
+      await signer.getAddress(),
+      await signer2.getAddress(),
+    ];
+
+    membershipManagerInstance = FWBMembershipNFT__factory.connect(
+      FWBMembership1967Manager.address,
+      signer
     );
   });
-  // #1
-  it("transfer fails", async () => {
-    // pass
-    const [s1, s2] = await ethers.getSigners();
-    await membershipManagerInstance.mint(await s1.getAddress());
-    await membershipManagerInstance.mint(await s2.getAddress());
+
+  it("admin mints", async () => {
+    console.log(signer2Address);
+    await membershipManagerInstance.adminMint(signer2Address, "10");
+    expect(await membershipManagerInstance.tokenURI("10")).to.be.equal(
+      "https://fwb.help/tokens/10"
+    );
+    await expect(membershipManagerInstance.tokenURI("1")).to.be.revertedWith(
+      "asdf"
+    );
+  });
+  describe("with an nft", () => {
+    beforeEach(async () => {
+      await membershipManagerInstance.adminMint(signer2Address, "1");
+    });
+    it("does not allow transfers from non-admins", async () => {
+      await expect(
+        membershipManagerInstance
+          .connect(signer2)
+          .transferFrom(signer2Address, signerAddress, "1")
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("allows transfers from admins", async () => {
+      expect(
+        await membershipManagerInstance
+          .connect(signer)
+          .transferFrom(signer2Address, signerAddress, "1")
+      ).to.emit("FWBMembershipNFT", "Transfer");
+      expect(membershipManagerInstance.ownerOf("1")).to.be.equal(
+        signer2Address
+      );
+    });
+    it("allows burns from admins", async () => {
+      await membershipManagerInstance.adminRevokeMemberships([signerAddress]);
+    });
+    it("does not allow burns from non-admins", async () => {
+      await expect(
+        membershipManagerInstance.adminRevokeMemberships([signerAddress])
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
   });
 });
