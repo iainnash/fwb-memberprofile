@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
+export type { IERC1271Upgradeable } from "./IERC1271Upgradeable";
 export type { IBeaconUpgradeable } from "./IBeaconUpgradeable";
 export type { ERC1967UpgradeUpgradeable } from "./ERC1967UpgradeUpgradeable";
 export type { UUPSUpgradeable } from "./UUPSUpgradeable";
@@ -23,6 +24,7 @@ export type { FWBMembershipSkeletonNFT } from "./FWBMembershipSkeletonNFT";
 export type { TestToken } from "./TestToken";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
+export { IERC1271Upgradeable__factory } from "./factories/IERC1271Upgradeable__factory";
 export { IBeaconUpgradeable__factory } from "./factories/IBeaconUpgradeable__factory";
 export { ERC1967UpgradeUpgradeable__factory } from "./factories/ERC1967UpgradeUpgradeable__factory";
 export { UUPSUpgradeable__factory } from "./factories/UUPSUpgradeable__factory";

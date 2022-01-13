@@ -32,7 +32,7 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     "initialize(string,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "manager()": FunctionFragment;
-    "mintWithSig(address,uint256,bytes,bytes)": FunctionFragment;
+    "mintWithSign(address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
@@ -84,8 +84,8 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "mintWithSig",
-    values: [string, BigNumberish, BytesLike, BytesLike]
+    functionFragment: "mintWithSign",
+    values: [string, BigNumberish, BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -164,7 +164,7 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "mintWithSig",
+    functionFragment: "mintWithSign",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -322,10 +322,11 @@ export class FWBMembershipNFT extends BaseContract {
 
     manager(overrides?: CallOverrides): Promise<[string]>;
 
-    mintWithSig(
+    mintWithSign(
       to: string,
-      id: BigNumberish,
-      data: BytesLike,
+      tokenId: BigNumberish,
+      deadline: BigNumberish,
+      nonce: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -447,10 +448,11 @@ export class FWBMembershipNFT extends BaseContract {
 
   manager(overrides?: CallOverrides): Promise<string>;
 
-  mintWithSig(
+  mintWithSign(
     to: string,
-    id: BigNumberish,
-    data: BytesLike,
+    tokenId: BigNumberish,
+    deadline: BigNumberish,
+    nonce: BigNumberish,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -572,10 +574,11 @@ export class FWBMembershipNFT extends BaseContract {
 
     manager(overrides?: CallOverrides): Promise<string>;
 
-    mintWithSig(
+    mintWithSign(
       to: string,
-      id: BigNumberish,
-      data: BytesLike,
+      tokenId: BigNumberish,
+      deadline: BigNumberish,
+      nonce: BigNumberish,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -753,10 +756,11 @@ export class FWBMembershipNFT extends BaseContract {
 
     manager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mintWithSig(
+    mintWithSign(
       to: string,
-      id: BigNumberish,
-      data: BytesLike,
+      tokenId: BigNumberish,
+      deadline: BigNumberish,
+      nonce: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -891,10 +895,11 @@ export class FWBMembershipNFT extends BaseContract {
 
     manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mintWithSig(
+    mintWithSign(
       to: string,
-      id: BigNumberish,
-      data: BytesLike,
+      tokenId: BigNumberish,
+      deadline: BigNumberish,
+      nonce: BigNumberish,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
