@@ -108,6 +108,13 @@ abstract contract FWBMembershipSkeletonNFT is
         emit Transfer(from, address(0x0), id);
     }
 
+    function _transferFrom(address from, address to, uint256 id) internal {
+        addressToId[from] = 0x0;
+        idToAddress[id] = to;
+        addressToId[to] = tokenId;
+        emit Transfer(from, to, id);
+    }
+
     function totalSupply() public view returns (uint256) {
         return numberTokens.current();
     }

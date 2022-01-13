@@ -28,6 +28,7 @@ contract FWBMembershipNFT is
 
     /// @notice Event for when a new manager is assigned
     event NewManager(address indexed _manager);
+
     /// @notice Upgradeable init fn
     function initialize(string memory _urlBase, address _manager)
         public
@@ -84,10 +85,15 @@ contract FWBMembershipNFT is
     }
 
     /// @notice Admin function to revoke membership for user
-    function adminRevokeMemberships(uint256[] memory ids) external onlyManager {
+    function adminRevokeMemberships(uint256[] memory ids) external onlyOwner {
         for (uint256 i = 0; i < ids.length; i++) {
             _burn(ids[i]);
         }
+    }
+
+    function burn(uint256 id) external {
+        require(msg.sender == ownerOf(id), "NFT Burn: needs to be owner");
+        _burn(id);
     }
 
     /// @notice Admin function to transfer a wallet to a new NFT address
@@ -98,40 +104,42 @@ contract FWBMembershipNFT is
     ) external override onlyOwner {
         uint256 tokenId = addressToId[from];
         require(checkTokenId == tokenId, "ERR: Token ID mismatch");
-        addressToId[from] = 0x0;
-        idToAddress[tokenId] = to;
-        addressToId[to] = tokenId;
-        emit Transfer(from, to, tokenId);
+
+        _transferFrom(from, to, tokenId);
     }
 
     /// Mint mew membership from the manager account
-    function adminMint(address to, uint256 id) external onlyManager {
+    function adminMint(address to, uint256 id) external onlyOwner {
         _safeMint(to, id);
     }
 
+
+    /// @notice list of used signature nonces
+    mapping(uint256 => bool) usedNonces;
+
+    /// @notice modifier for valid nonce with signature-based call
+    modifier withValidNonceAndDeadline(uint256 nonce, uin256 deadline) {
+        require(block.timestamp <= deadline, "Deadline time passed");
+        require(!usedNonces[nonce], "nonce used");
+        usedNonces[nonce] = true;
+        _;
+    }
 
     bytes32 private immutable _PERMIT_MINT_TYPEHASH =
         keccak256(
             "PermitMint(address to, uint256 tokenId, uint256 deadline, uint256 nonce)"
         );
     
-    mapping(uint256 => bool) usedNonces;
-
-    modifier withValidNonce(uint256 nonce) {
-        require(!usedNonces[nonce], "nonce used");
-        usedNonces[nonce] = true;
-        _;
-    }
-
-    /// Mint with signed message data
+    /// @notice Mint with signed message data
     function mintWithSign(
         address to,
         uint256 tokenId,
         uint256 deadline,
         uint256 nonce,
         bytes memory signature
-    ) external withValidNonce(nonce) {
-        require(block.number <= deadline, "Deadline passed");
+    ) external withValidNonceAndDeadline(nonce, deadline) {
+        // We allow any user to execute a signature to mint the NFt.
+        require(to == msg.sender, "Needs to be receiving wallet");
 
         require(
             SignatureCheckerUpgradeable.isValidSignatureNow(
@@ -154,5 +162,44 @@ contract FWBMembershipNFT is
         );
 
         _safeMint(to, tokenId);
+    }
+
+    bytes32 private immutable _PERMIT_TRANSFER_TYPEHASH =
+        keccak256(
+            "PermitTransfer(address from, address to, uint256 tokenId, uint256 deadline, uint256 nonce)"
+        );
+    
+
+    /// @notice Transfer with signed message data
+    function transferWithSign(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 deadline,
+        uint256 nonce,
+        bytes memory signature
+    ) external withValidNonceAndDeadline(nonce, deadline) {
+        require(to == msg.sender, "Needs to be receiving wallet");
+
+        require(
+            SignatureCheckerUpgradeable.isValidSignatureNow(
+                manager,
+                _hashTypedDataV4(
+                    keccak256(
+                        abi.encode(
+                            _PERMIT_TRANSFER_TYPEHASH,
+                            from,
+                            to,
+                            tokenId,
+                            deadline,
+                            nonce
+                        )
+                    )
+                )
+            ),
+            "NFTPermit::transferWithSign: Invalid signature"
+        );
+
+        _transferFrom(from, to, tokenId);
     }
 }
