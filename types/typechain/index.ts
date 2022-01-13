@@ -19,6 +19,7 @@ export type { IERC20Metadata } from "./IERC20Metadata";
 export type { IERC20 } from "./IERC20";
 export type { FWBMembership1967Manager } from "./FWBMembership1967Manager";
 export type { FWBMembershipNFT } from "./FWBMembershipNFT";
+export type { FWBMembershipSkeletonNFT } from "./FWBMembershipSkeletonNFT";
 export type { TestToken } from "./TestToken";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
@@ -39,4 +40,5 @@ export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { IERC20__factory } from "./factories/IERC20__factory";
 export { FWBMembership1967Manager__factory } from "./factories/FWBMembership1967Manager__factory";
 export { FWBMembershipNFT__factory } from "./factories/FWBMembershipNFT__factory";
+export { FWBMembershipSkeletonNFT__factory } from "./factories/FWBMembershipSkeletonNFT__factory";
 export { TestToken__factory } from "./factories/TestToken__factory";

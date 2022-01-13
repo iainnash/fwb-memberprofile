@@ -12,7 +12,6 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,47 +19,26 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface FWBMembershipNFTInterface extends ethers.utils.Interface {
+interface FWBMembershipSkeletonNFTInterface extends ethers.utils.Interface {
   functions: {
     "addressToId(address)": FunctionFragment;
-    "adminMint(address,uint256)": FunctionFragment;
-    "adminRevokeMemberships(uint256[])": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "idToAddress(uint256)": FunctionFragment;
-    "initialize(string,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "manager()": FunctionFragment;
-    "mintWithSig(address,uint256,bytes,bytes)": FunctionFragment;
     "name()": FunctionFragment;
-    "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
-    "setManager(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "updateUrlBase(string)": FunctionFragment;
-    "upgradeTo(address)": FunctionFragment;
-    "upgradeToAndCall(address,bytes)": FunctionFragment;
-    "urlBase()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "addressToId", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "adminMint",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "adminRevokeMemberships",
-    values: [BigNumberish[]]
-  ): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [string, BigNumberish]
@@ -75,27 +53,13 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
-  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mintWithSig",
-    values: [string, BigNumberish, BytesLike, BytesLike]
-  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom",
@@ -105,7 +69,6 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
   ): string;
-  encodeFunctionData(functionFragment: "setManager", values: [string]): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
@@ -123,28 +86,9 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateUrlBase",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "upgradeTo", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToAndCall",
-    values: [string, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "urlBase", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "addressToId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "adminMint", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "adminRevokeMemberships",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
@@ -157,23 +101,12 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "idToAddress",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mintWithSig",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "safeTransferFrom",
     data: BytesLike
@@ -182,7 +115,6 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setManager", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
@@ -197,43 +129,19 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateUrlBase",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCall",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "urlBase", data: BytesLike): Result;
 
   events: {
-    "AdminChanged(address,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "BeaconUpgraded(address)": EventFragment;
-    "NewManager(address)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "Upgraded(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewManager"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
-export class FWBMembershipNFT extends BaseContract {
+export class FWBMembershipSkeletonNFT extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -274,21 +182,10 @@ export class FWBMembershipNFT extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: FWBMembershipNFTInterface;
+  interface: FWBMembershipSkeletonNFTInterface;
 
   functions: {
     addressToId(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    adminMint(
-      to: string,
-      id: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    adminRevokeMemberships(
-      ids: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     approve(
       arg0: string,
@@ -308,37 +205,15 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    initialize(
-      _urlBase: string,
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    manager(overrides?: CallOverrides): Promise<[string]>;
-
-    mintWithSig(
-      to: string,
-      id: BigNumberish,
-      data: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       arg0: string,
@@ -361,11 +236,6 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setManager(
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -373,7 +243,10 @@ export class FWBMembershipNFT extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    tokenURI(id: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
+    tokenURI(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -383,43 +256,9 @@ export class FWBMembershipNFT extends BaseContract {
       checkTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    updateUrlBase(
-      newUrlBase: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeTo(
-      newImplementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    urlBase(overrides?: CallOverrides): Promise<[string]>;
   };
 
   addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  adminMint(
-    to: string,
-    id: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  adminRevokeMemberships(
-    ids: BigNumberish[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   approve(
     arg0: string,
@@ -433,37 +272,15 @@ export class FWBMembershipNFT extends BaseContract {
 
   idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-  initialize(
-    _urlBase: string,
-    _manager: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   isApprovedForAll(
     arg0: string,
     arg1: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  manager(overrides?: CallOverrides): Promise<string>;
-
-  mintWithSig(
-    to: string,
-    id: BigNumberish,
-    data: BytesLike,
-    signature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
   ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
     arg0: string,
@@ -486,11 +303,6 @@ export class FWBMembershipNFT extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setManager(
-    _manager: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
@@ -498,7 +310,7 @@ export class FWBMembershipNFT extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  tokenURI(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
+  tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -509,42 +321,8 @@ export class FWBMembershipNFT extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  updateUrlBase(
-    newUrlBase: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeTo(
-    newImplementation: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeToAndCall(
-    newImplementation: string,
-    data: BytesLike,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  urlBase(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
     addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    adminMint(
-      to: string,
-      id: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    adminRevokeMemberships(
-      ids: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     approve(
       arg0: string,
@@ -558,35 +336,15 @@ export class FWBMembershipNFT extends BaseContract {
 
     idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-    initialize(
-      _urlBase: string,
-      _manager: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    manager(overrides?: CallOverrides): Promise<string>;
-
-    mintWithSig(
-      to: string,
-      id: BigNumberish,
-      data: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     name(overrides?: CallOverrides): Promise<string>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
-
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     "safeTransferFrom(address,address,uint256)"(
       arg0: string,
@@ -609,8 +367,6 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setManager(_manager: string, overrides?: CallOverrides): Promise<void>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -618,7 +374,7 @@ export class FWBMembershipNFT extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    tokenURI(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
+    tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -628,37 +384,9 @@ export class FWBMembershipNFT extends BaseContract {
       checkTokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updateUrlBase(newUrlBase: string, overrides?: CallOverrides): Promise<void>;
-
-    upgradeTo(
-      newImplementation: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    upgradeToAndCall(
-      newImplementation: string,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    urlBase(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
-    AdminChanged(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): TypedEventFilter<
-      [string, string],
-      { previousAdmin: string; newAdmin: string }
-    >;
-
     Approval(
       owner?: string | null,
       approved?: string | null,
@@ -677,22 +405,6 @@ export class FWBMembershipNFT extends BaseContract {
       { owner: string; operator: string; approved: boolean }
     >;
 
-    BeaconUpgraded(
-      beacon?: string | null
-    ): TypedEventFilter<[string], { beacon: string }>;
-
-    NewManager(
-      _manager?: string | null
-    ): TypedEventFilter<[string], { _manager: string }>;
-
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { previousOwner: string; newOwner: string }
-    >;
-
     Transfer(
       from?: string | null,
       to?: string | null,
@@ -701,25 +413,10 @@ export class FWBMembershipNFT extends BaseContract {
       [string, string, BigNumber],
       { from: string; to: string; tokenId: BigNumber }
     >;
-
-    Upgraded(
-      implementation?: string | null
-    ): TypedEventFilter<[string], { implementation: string }>;
   };
 
   estimateGas: {
     addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    adminMint(
-      to: string,
-      id: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    adminRevokeMemberships(
-      ids: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     approve(
       arg0: string,
@@ -739,37 +436,15 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    initialize(
-      _urlBase: string,
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    manager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    mintWithSig(
-      to: string,
-      id: BigNumberish,
-      data: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       arg0: string,
@@ -792,11 +467,6 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setManager(
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -804,7 +474,10 @@ export class FWBMembershipNFT extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenURI(id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    tokenURI(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -814,46 +487,12 @@ export class FWBMembershipNFT extends BaseContract {
       checkTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    updateUrlBase(
-      newUrlBase: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    upgradeTo(
-      newImplementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    upgradeToAndCall(
-      newImplementation: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    urlBase(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     addressToId(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    adminMint(
-      to: string,
-      id: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    adminRevokeMemberships(
-      ids: BigNumberish[],
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     approve(
@@ -877,39 +516,17 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    initialize(
-      _urlBase: string,
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    mintWithSig(
-      to: string,
-      id: BigNumberish,
-      data: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ownerOf(
       id: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -933,11 +550,6 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setManager(
-      _manager: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -946,7 +558,7 @@ export class FWBMembershipNFT extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tokenURI(
-      id: BigNumberish,
+      tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -958,28 +570,5 @@ export class FWBMembershipNFT extends BaseContract {
       checkTokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateUrlBase(
-      newUrlBase: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeTo(
-      newImplementation: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeToAndCall(
-      newImplementation: string,
-      data: BytesLike,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    urlBase(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -18,15 +18,17 @@ describe("MembershipManager", () => {
 
   beforeEach(async () => {
     const { FWBMembership1967Manager } = await deployments.fixture([
-      "FWBMembership1967Manager",
+      "FWBMembership1967Manager", "FWBMembershipNFT"
     ]);
-    // const { deployer } = await getNamedAccounts();
+    const { deployer } = await getNamedAccounts();
 
     [signer, signer2] = await ethers.getSigners();
     [signerAddress, signer2Address] = [
       await signer.getAddress(),
       await signer2.getAddress(),
     ];
+
+    console.log({deployer, signerAddress});
 
     membershipManagerInstance = FWBMembershipNFT__factory.connect(
       FWBMembership1967Manager.address,
@@ -66,11 +68,11 @@ describe("MembershipManager", () => {
       );
     });
     it("allows burns from admins", async () => {
-      await membershipManagerInstance.adminRevokeMemberships([signerAddress]);
+      await membershipManagerInstance.adminRevokeMemberships(['1']);
     });
     it("does not allow burns from non-admins", async () => {
       await expect(
-        membershipManagerInstance.adminRevokeMemberships([signerAddress])
+        membershipManagerInstance.adminRevokeMemberships(['1'])
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
