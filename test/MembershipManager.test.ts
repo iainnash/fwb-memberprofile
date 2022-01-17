@@ -25,8 +25,7 @@ const SigningTypesTransfer = {
     { type: "uint256", name: "deadline" },
     { type: "uint256", name: "nonce" },
   ],
-}
-
+};
 
 describe("MembershipManager", () => {
   let membershipManagerInstance: FWBMembershipNFT;
@@ -82,20 +81,61 @@ describe("MembershipManager", () => {
     it("signs user mints", async () => {
       const data = {
         to: signer3Address,
-        tokenId: '23',
-        nonce: '1',
-        deadline: Math.floor(new Date().getTime()/1000)+10000,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) + 10000,
       };
-      const signedMint = await signer2._signTypedData(domain, SigningTypesMint, data);
-      await membershipManagerInstance.connect(signer3).mintWithSign(
-        signer3Address,
-        data.tokenId,
-        data.deadline,
-        data.nonce,
-        signedMint,
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesMint,
+        data
       );
-      expect(await membershipManagerInstance.ownerOf('23')).to.be.equal(signer3Address);
+      await membershipManagerInstance
+        .connect(signer3)
+        .mintWithSign(
+          signer3Address,
+          data.tokenId,
+          data.deadline,
+          data.nonce,
+          signedMint
+        );
+      expect(await membershipManagerInstance.ownerOf("23")).to.be.equal(
+        signer3Address
+      );
     });
+    it("signs user transfers", async () => {
+      await membershipManagerInstance.adminMint(signer2Address, "23");
+      const data = {
+        to: signer3Address,
+        from: signer2Address,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) + 10000,
+      };
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesTransfer,
+        data
+      );
+      await membershipManagerInstance
+        .connect(signer3)
+        .transferWithSign(
+          signer2Address,
+          signer3Address,
+          data.tokenId,
+          data.deadline,
+          data.nonce,
+          signedMint
+        );
+      expect(await membershipManagerInstance.ownerOf("23")).to.be.equal(
+        signer3Address
+      );
+    });
+    it("does not allow nonce reuse", async () => {});
+    it("allows signer accounts to change", async () => {});
+    it("enforces deadlines", async () => {});
+    it("handles invalid singatures", async () => {});
+    it("rejects txns signed from the wrong address", async () => {});
   });
   describe("with an nft", () => {
     beforeEach(async () => {
