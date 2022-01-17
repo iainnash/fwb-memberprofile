@@ -19,7 +19,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     to: deployer,
     args: [],
     log: true,
-    deterministicDeployment: true,
+    // deterministicDeployment: true,
     // Displays address and gas used in console
   });
 

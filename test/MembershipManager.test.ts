@@ -9,26 +9,55 @@ import {
 } from "../types/typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
+const SigningTypesMint = {
+  PermitMint: [
+    { type: "address", name: "to" },
+    { type: "uint256", name: "tokenId" },
+    { type: "uint256", name: "deadline" },
+    { type: "uint256", name: "nonce" },
+  ],
+};
+const SigningTypesTransfer = {
+  PermitTransfer: [
+    { type: "address", name: "from" },
+    { type: "address", name: "to" },
+    { type: "uint256", name: "tokenId" },
+    { type: "uint256", name: "deadline" },
+    { type: "uint256", name: "nonce" },
+  ],
+}
+
+
 describe("MembershipManager", () => {
   let membershipManagerInstance: FWBMembershipNFT;
   let signer: SignerWithAddress;
   let signer2: SignerWithAddress;
+  let signer3: SignerWithAddress;
   let signerAddress: string;
   let signer2Address: string;
+  let signer3Address: string;
+  let domain: any;
 
   beforeEach(async () => {
     const { FWBMembership1967Manager } = await deployments.fixture([
-      "FWBMembership1967Manager", "FWBMembershipNFT"
+      "FWBMembership1967Manager",
+      "FWBMembershipNFT",
     ]);
-    const { deployer } = await getNamedAccounts();
 
-    [signer, signer2] = await ethers.getSigners();
-    [signerAddress, signer2Address] = [
+    const { chainId } = await ethers.provider.getNetwork();
+    domain = {
+      name: "FWBMembershipNFT",
+      version: "1",
+      chainId,
+      verifyingContract: FWBMembership1967Manager.address,
+    };
+
+    [signer, signer2, signer3] = await ethers.getSigners();
+    [signerAddress, signer2Address, signer3Address] = [
       await signer.getAddress(),
       await signer2.getAddress(),
+      await signer3.getAddress(),
     ];
-
-    console.log({deployer, signerAddress});
 
     membershipManagerInstance = FWBMembershipNFT__factory.connect(
       FWBMembership1967Manager.address,
@@ -43,8 +72,30 @@ describe("MembershipManager", () => {
       "https://fwb.help/tokens/10"
     );
     await expect(membershipManagerInstance.tokenURI("1")).to.be.revertedWith(
-      "asdf"
+      "ERC721: Token does not exist"
     );
+  });
+  describe("with a signer", () => {
+    beforeEach(async () => {
+      await membershipManagerInstance.setSigner(signer2Address);
+    });
+    it("signs user mints", async () => {
+      const data = {
+        to: signer3Address,
+        tokenId: '23',
+        nonce: '1',
+        deadline: Math.floor(new Date().getTime()/1000)+10000,
+      };
+      const signedMint = await signer2._signTypedData(domain, SigningTypesMint, data);
+      await membershipManagerInstance.connect(signer3).mintWithSign(
+        signer3Address,
+        data.tokenId,
+        data.deadline,
+        data.nonce,
+        signedMint,
+      );
+      expect(await membershipManagerInstance.ownerOf('23')).to.be.equal(signer3Address);
+    });
   });
   describe("with an nft", () => {
     beforeEach(async () => {
@@ -58,21 +109,21 @@ describe("MembershipManager", () => {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
     it("allows transfers from admins", async () => {
-      expect(
-        await membershipManagerInstance
-          .connect(signer)
-          .transferFrom(signer2Address, signerAddress, "1")
-      ).to.emit("FWBMembershipNFT", "Transfer");
-      expect(membershipManagerInstance.ownerOf("1")).to.be.equal(
-        signer2Address
+      await membershipManagerInstance.transferFrom(
+        signer2Address,
+        signerAddress,
+        "1"
       );
+      const owner = await membershipManagerInstance.ownerOf("1");
+      console.log(owner);
+      expect(owner).to.be.equal(signerAddress);
     });
     it("allows burns from admins", async () => {
-      await membershipManagerInstance.adminRevokeMemberships(['1']);
+      await membershipManagerInstance.adminRevokeMemberships(["1"]);
     });
     it("does not allow burns from non-admins", async () => {
       await expect(
-        membershipManagerInstance.adminRevokeMemberships(['1'])
+        membershipManagerInstance.connect(signer2).adminRevokeMemberships(["1"])
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });

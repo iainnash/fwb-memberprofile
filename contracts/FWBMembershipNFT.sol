@@ -7,7 +7,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {ERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {FWBMembershipSkeletonNFT} from "./FWBMembershipSkeletonNFT.sol";
 import {EIP712Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -23,14 +22,14 @@ contract FWBMembershipNFT is
     /// @notice URLBase for metadata
     string public urlBase;
 
-    /// @notice Address for manager
-    address public manager;
+    /// @notice Address for signer
+    address public signer;
 
-    /// @notice Event for when a new manager is assigned
-    event NewManager(address indexed _manager);
+    /// @notice Event for when a new signer is assigned
+    event NewSigner(address indexed _signer);
 
     /// @notice Upgradeable init fn
-    function initialize(string memory _urlBase, address _manager)
+    function initialize(string memory _urlBase, address _signer)
         public
         initializer
     {
@@ -40,8 +39,8 @@ contract FWBMembershipNFT is
         __ERC165_init();
 
         urlBase = _urlBase;
-        manager = _manager;
-        emit NewManager(manager);
+        signer = _signer;
+        emit NewSigner(signer);
     }
 
     /**
@@ -57,12 +56,6 @@ contract FWBMembershipNFT is
         // only owner can upgrade contract
     }
 
-    /// @notice An owner can set a manager user that can manage memberships
-    modifier onlyManager() {
-        require(msg.sender == manager, "Only manager");
-        _;
-    }
-
     /**
         URI Management tools
      */
@@ -72,14 +65,15 @@ contract FWBMembershipNFT is
         urlBase = newUrlBase;
     }
 
-    /// @notice An owner can set a manager user that can manage memberships
-    function setManager(address _manager) external onlyOwner {
-        manager = _manager;
-        emit NewManager(manager);
+    /// @notice An owner can set a signer user that can manage memberships
+    function setSigner(address _signer) external onlyOwner {
+        signer = _signer;
+        emit NewSigner(signer);
     }
 
     /// @notice Getter for url server nft base
     function tokenURI(uint256 id) external view returns (string memory) {
+        require(_exists(id), 'ERC721: Token does not exist');
         return
             string(abi.encodePacked(urlBase, StringsUpgradeable.toString(id)));
     }
@@ -108,7 +102,7 @@ contract FWBMembershipNFT is
         _transferFrom(from, to, tokenId);
     }
 
-    /// Mint mew membership from the manager account
+    /// Mint mew membership from the signer account
     function adminMint(address to, uint256 id) external onlyOwner {
         _safeMint(to, id);
     }
@@ -118,16 +112,17 @@ contract FWBMembershipNFT is
     mapping(uint256 => bool) usedNonces;
 
     /// @notice modifier for valid nonce with signature-based call
-    modifier withValidNonceAndDeadline(uint256 nonce, uin256 deadline) {
+    modifier withValidNonceAndDeadline(uint256 nonce, uint256 deadline) {
         require(block.timestamp <= deadline, "Deadline time passed");
         require(!usedNonces[nonce], "nonce used");
         usedNonces[nonce] = true;
         _;
     }
 
+    /// @notice signature permitted mint function typehash
     bytes32 private immutable _PERMIT_MINT_TYPEHASH =
         keccak256(
-            "PermitMint(address to, uint256 tokenId, uint256 deadline, uint256 nonce)"
+            "PermitMint(address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
         );
     
     /// @notice Mint with signed message data
@@ -143,8 +138,8 @@ contract FWBMembershipNFT is
 
         require(
             SignatureCheckerUpgradeable.isValidSignatureNow(
-                // manager is the signer
-                manager,
+                // signer is the signer
+                signer,
                 _hashTypedDataV4(
                     keccak256(
                         abi.encode(
@@ -166,7 +161,7 @@ contract FWBMembershipNFT is
 
     bytes32 private immutable _PERMIT_TRANSFER_TYPEHASH =
         keccak256(
-            "PermitTransfer(address from, address to, uint256 tokenId, uint256 deadline, uint256 nonce)"
+            "PermitTransfer(address from,address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
         );
     
 
@@ -183,7 +178,7 @@ contract FWBMembershipNFT is
 
         require(
             SignatureCheckerUpgradeable.isValidSignatureNow(
-                manager,
+                signer,
                 _hashTypedDataV4(
                     keccak256(
                         abi.encode(
@@ -195,7 +190,8 @@ contract FWBMembershipNFT is
                             nonce
                         )
                     )
-                )
+                ),
+                signature
             ),
             "NFTPermit::transferWithSign: Invalid signature"
         );
