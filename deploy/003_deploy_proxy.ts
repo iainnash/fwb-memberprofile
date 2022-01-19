@@ -7,7 +7,9 @@ module.exports = async ({ ethers, getNamedAccounts, deployments }: any) => {
   const nftDeployment = await deployments.get('FWBMembershipNFT');
 
   const args = [
+    // base uri
     "https://fwb.help/tokens/",
+    // admin address
     deployer,
   ];
 

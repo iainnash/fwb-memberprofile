@@ -22,7 +22,7 @@ abstract contract FWBMembershipSkeletonNFT is
     mapping(address => uint256) public addressToId;
 
     /// @notice Stores membership id to address
-    mapping(uint256 => address) public idToAddress;
+    mapping(uint256 => address) private idToAddress;
 
     /// @notice modifier signifying contract function is not supported
     modifier notSupported() {

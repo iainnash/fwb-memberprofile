@@ -22,6 +22,9 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface FWBMembershipNFTInterface extends ethers.utils.Interface {
   functions: {
+    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "NFT_MANAGER_ROLE()": FunctionFragment;
+    "SIGNER_ROLE()": FunctionFragment;
     "addressToId(address)": FunctionFragment;
     "adminMint(address,uint256)": FunctionFragment;
     "adminRevokeMemberships(uint256[])": FunctionFragment;
@@ -29,31 +32,46 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burn(uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "idToAddress(uint256)": FunctionFragment;
+    "getRoleAdmin(bytes32)": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
     "initialize(string,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "mintWithSign(address,uint256,uint256,uint256,bytes)": FunctionFragment;
+    "mintWithSign(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "renounceRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
-    "setSigner(address)": FunctionFragment;
-    "signer()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "transferWithSign(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
+    "transferWithSign(address,address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "updateUrlBase(string)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
     "urlBase()": FunctionFragment;
+    "usedNonces(uint256)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "NFT_MANAGER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "SIGNER_ROLE",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "addressToId", values: [string]): string;
   encodeFunctionData(
     functionFragment: "adminMint",
@@ -74,8 +92,16 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "idToAddress",
-    values: [BigNumberish]
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -87,7 +113,14 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "mintWithSign",
-    values: [string, BigNumberish, BigNumberish, BigNumberish, BytesLike]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BytesLike
+    ]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -100,6 +133,14 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "safeTransferFrom",
     values: [string, string, BigNumberish]
   ): string;
@@ -107,8 +148,6 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     values: [string, boolean]
   ): string;
-  encodeFunctionData(functionFragment: "setSigner", values: [string]): string;
-  encodeFunctionData(functionFragment: "signer", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
@@ -135,6 +174,7 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     values: [
       string,
       string,
+      string,
       BigNumberish,
       BigNumberish,
       BigNumberish,
@@ -151,7 +191,23 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     values: [string, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "urlBase", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "usedNonces",
+    values: [BigNumberish]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "NFT_MANAGER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "SIGNER_ROLE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "addressToId",
     data: BytesLike
@@ -169,9 +225,11 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "idToAddress",
+    functionFragment: "getRoleAdmin",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
@@ -189,6 +247,11 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "safeTransferFrom",
     data: BytesLike
   ): Result;
@@ -196,8 +259,6 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     functionFragment: "setApprovalForAll",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setSigner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "signer", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
@@ -230,14 +291,17 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "urlBase", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "usedNonces", data: BytesLike): Result;
 
   events: {
     "AdminChanged(address,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "BeaconUpgraded(address)": EventFragment;
-    "NewSigner(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Upgraded(address)": EventFragment;
   };
@@ -246,8 +310,10 @@ interface FWBMembershipNFTInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewSigner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
@@ -296,6 +362,12 @@ export class FWBMembershipNFT extends BaseContract {
   interface: FWBMembershipNFTInterface;
 
   functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    NFT_MANAGER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    SIGNER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
     addressToId(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     adminMint(
@@ -327,14 +399,23 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    idToAddress(
-      arg0: BigNumberish,
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[boolean]>;
 
     initialize(
       _urlBase: string,
-      _signer: string,
+      admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -345,6 +426,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<[boolean]>;
 
     mintWithSign(
+      signer: string,
       to: string,
       tokenId: BigNumberish,
       deadline: BigNumberish,
@@ -360,6 +442,18 @@ export class FWBMembershipNFT extends BaseContract {
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -383,13 +477,6 @@ export class FWBMembershipNFT extends BaseContract {
       arg1: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    setSigner(
-      _signer: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    signer(overrides?: CallOverrides): Promise<[string]>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -415,6 +502,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<ContractTransaction>;
 
     transferWithSign(
+      signer: string,
       from: string,
       to: string,
       tokenId: BigNumberish,
@@ -441,7 +529,18 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<ContractTransaction>;
 
     urlBase(overrides?: CallOverrides): Promise<[string]>;
+
+    usedNonces(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
+
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  NFT_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  SIGNER_ROLE(overrides?: CallOverrides): Promise<string>;
 
   addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -471,11 +570,23 @@ export class FWBMembershipNFT extends BaseContract {
 
   getApproved(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-  idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   initialize(
     _urlBase: string,
-    _signer: string,
+    admin: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -486,6 +597,7 @@ export class FWBMembershipNFT extends BaseContract {
   ): Promise<boolean>;
 
   mintWithSign(
+    signer: string,
     to: string,
     tokenId: BigNumberish,
     deadline: BigNumberish,
@@ -501,6 +613,18 @@ export class FWBMembershipNFT extends BaseContract {
   ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -522,11 +646,6 @@ export class FWBMembershipNFT extends BaseContract {
   setApprovalForAll(
     arg0: string,
     arg1: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSigner(
-    _signer: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -554,6 +673,7 @@ export class FWBMembershipNFT extends BaseContract {
   ): Promise<ContractTransaction>;
 
   transferWithSign(
+    signer: string,
     from: string,
     to: string,
     tokenId: BigNumberish,
@@ -581,7 +701,15 @@ export class FWBMembershipNFT extends BaseContract {
 
   urlBase(overrides?: CallOverrides): Promise<string>;
 
+  usedNonces(arg0: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
+
   callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    NFT_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    SIGNER_ROLE(overrides?: CallOverrides): Promise<string>;
+
     addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     adminMint(
@@ -607,11 +735,23 @@ export class FWBMembershipNFT extends BaseContract {
 
     getApproved(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-    idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     initialize(
       _urlBase: string,
-      _signer: string,
+      admin: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -622,6 +762,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<boolean>;
 
     mintWithSign(
+      signer: string,
       to: string,
       tokenId: BigNumberish,
       deadline: BigNumberish,
@@ -637,6 +778,18 @@ export class FWBMembershipNFT extends BaseContract {
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     "safeTransferFrom(address,address,uint256)"(
       arg0: string,
@@ -658,10 +811,6 @@ export class FWBMembershipNFT extends BaseContract {
       arg1: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    setSigner(_signer: string, overrides?: CallOverrides): Promise<void>;
-
-    signer(overrides?: CallOverrides): Promise<string>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -687,6 +836,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<void>;
 
     transferWithSign(
+      signer: string,
       from: string,
       to: string,
       tokenId: BigNumberish,
@@ -710,6 +860,8 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<void>;
 
     urlBase(overrides?: CallOverrides): Promise<string>;
+
+    usedNonces(arg0: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
@@ -743,16 +895,39 @@ export class FWBMembershipNFT extends BaseContract {
       beacon?: string | null
     ): TypedEventFilter<[string], { beacon: string }>;
 
-    NewSigner(
-      _signer?: string | null
-    ): TypedEventFilter<[string], { _signer: string }>;
-
     OwnershipTransferred(
       previousOwner?: string | null,
       newOwner?: string | null
     ): TypedEventFilter<
       [string, string],
       { previousOwner: string; newOwner: string }
+    >;
+
+    RoleAdminChanged(
+      role?: BytesLike | null,
+      previousAdminRole?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleRevoked(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
     >;
 
     Transfer(
@@ -770,6 +945,12 @@ export class FWBMembershipNFT extends BaseContract {
   };
 
   estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    NFT_MANAGER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    SIGNER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
     addressToId(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     adminMint(
@@ -801,14 +982,26 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    idToAddress(
-      arg0: BigNumberish,
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     initialize(
       _urlBase: string,
-      _signer: string,
+      admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -819,6 +1012,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<BigNumber>;
 
     mintWithSign(
+      signer: string,
       to: string,
       tokenId: BigNumberish,
       deadline: BigNumberish,
@@ -834,6 +1028,18 @@ export class FWBMembershipNFT extends BaseContract {
     ownerOf(id: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -857,13 +1063,6 @@ export class FWBMembershipNFT extends BaseContract {
       arg1: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    setSigner(
-      _signer: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    signer(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -889,6 +1088,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<BigNumber>;
 
     transferWithSign(
+      signer: string,
       from: string,
       to: string,
       tokenId: BigNumberish,
@@ -915,9 +1115,22 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<BigNumber>;
 
     urlBase(overrides?: CallOverrides): Promise<BigNumber>;
+
+    usedNonces(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    DEFAULT_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    NFT_MANAGER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    SIGNER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     addressToId(
       arg0: string,
       overrides?: CallOverrides
@@ -955,14 +1168,26 @@ export class FWBMembershipNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    idToAddress(
-      arg0: BigNumberish,
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     initialize(
       _urlBase: string,
-      _signer: string,
+      admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -973,6 +1198,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     mintWithSign(
+      signer: string,
       to: string,
       tokenId: BigNumberish,
       deadline: BigNumberish,
@@ -991,6 +1217,18 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1014,13 +1252,6 @@ export class FWBMembershipNFT extends BaseContract {
       arg1: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    setSigner(
-      _signer: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    signer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -1049,6 +1280,7 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     transferWithSign(
+      signer: string,
       from: string,
       to: string,
       tokenId: BigNumberish,
@@ -1075,5 +1307,10 @@ export class FWBMembershipNFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     urlBase(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    usedNonces(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

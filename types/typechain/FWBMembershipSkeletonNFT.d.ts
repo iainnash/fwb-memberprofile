@@ -25,7 +25,6 @@ interface FWBMembershipSkeletonNFTInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "idToAddress(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
@@ -46,10 +45,6 @@ interface FWBMembershipSkeletonNFTInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getApproved",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "idToAddress",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -95,10 +90,6 @@ interface FWBMembershipSkeletonNFTInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "idToAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -200,11 +191,6 @@ export class FWBMembershipSkeletonNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    idToAddress(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
@@ -270,8 +256,6 @@ export class FWBMembershipSkeletonNFT extends BaseContract {
 
   getApproved(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
-  idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
   isApprovedForAll(
     arg0: string,
     arg1: string,
@@ -333,8 +317,6 @@ export class FWBMembershipSkeletonNFT extends BaseContract {
     balanceOf(user: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
-    idToAddress(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     isApprovedForAll(
       arg0: string,
@@ -431,11 +413,6 @@ export class FWBMembershipSkeletonNFT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    idToAddress(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     isApprovedForAll(
       arg0: string,
       arg1: string,
@@ -507,11 +484,6 @@ export class FWBMembershipSkeletonNFT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getApproved(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    idToAddress(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

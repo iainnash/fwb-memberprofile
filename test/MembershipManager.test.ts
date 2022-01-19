@@ -11,6 +11,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
 
 const SigningTypesMint = {
   PermitMint: [
+    { type: "address", name: "signer" },
     { type: "address", name: "to" },
     { type: "uint256", name: "tokenId" },
     { type: "uint256", name: "deadline" },
@@ -19,6 +20,7 @@ const SigningTypesMint = {
 };
 const SigningTypesTransfer = {
   PermitTransfer: [
+    { type: "address", name: "signer" },
     { type: "address", name: "from" },
     { type: "address", name: "to" },
     { type: "uint256", name: "tokenId" },
@@ -62,10 +64,13 @@ describe("MembershipManager", () => {
       FWBMembership1967Manager.address,
       signer
     );
+    await membershipManagerInstance.grantRole(
+      await membershipManagerInstance.NFT_MANAGER_ROLE(),
+      signerAddress
+    );
   });
 
   it("admin mints", async () => {
-    console.log(signer2Address);
     await membershipManagerInstance.adminMint(signer2Address, "10");
     expect(await membershipManagerInstance.tokenURI("10")).to.be.equal(
       "https://fwb.help/tokens/10"
@@ -76,10 +81,14 @@ describe("MembershipManager", () => {
   });
   describe("with a signer", () => {
     beforeEach(async () => {
-      await membershipManagerInstance.setSigner(signer2Address);
+      await membershipManagerInstance.grantRole(
+        await membershipManagerInstance.SIGNER_ROLE(),
+        signer2Address
+      );
     });
     it("signs user mints", async () => {
       const data = {
+        signer: signer2Address,
         to: signer3Address,
         tokenId: "23",
         nonce: "1",
@@ -93,7 +102,8 @@ describe("MembershipManager", () => {
       await membershipManagerInstance
         .connect(signer3)
         .mintWithSign(
-          signer3Address,
+          data.signer,
+          data.to,
           data.tokenId,
           data.deadline,
           data.nonce,
@@ -106,6 +116,7 @@ describe("MembershipManager", () => {
     it("signs user transfers", async () => {
       await membershipManagerInstance.adminMint(signer2Address, "23");
       const data = {
+        signer: signer2Address,
         to: signer3Address,
         from: signer2Address,
         tokenId: "23",
@@ -120,8 +131,9 @@ describe("MembershipManager", () => {
       await membershipManagerInstance
         .connect(signer3)
         .transferWithSign(
-          signer2Address,
-          signer3Address,
+          data.signer,
+          data.from,
+          data.to,
           data.tokenId,
           data.deadline,
           data.nonce,
@@ -131,11 +143,129 @@ describe("MembershipManager", () => {
         signer3Address
       );
     });
-    it("does not allow nonce reuse", async () => {});
-    it("allows signer accounts to change", async () => {});
-    it("enforces deadlines", async () => {});
-    it("handles invalid singatures", async () => {});
-    it("rejects txns signed from the wrong address", async () => {});
+    it("does not allow nonce reuse", async () => {
+      const data = {
+        signer: signer2Address,
+        to: signer3Address,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) + 10000,
+      };
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesMint,
+        data
+      );
+      await membershipManagerInstance
+        .connect(signer3)
+        .mintWithSign(
+          data.signer,
+          data.to,
+          data.tokenId,
+          data.deadline,
+          data.nonce,
+          signedMint
+        );
+      expect(await membershipManagerInstance.ownerOf("23")).to.be.equal(
+        signer3Address
+      );
+      await expect(
+        membershipManagerInstance
+          .connect(signer3)
+          .mintWithSign(
+            data.signer,
+            data.to,
+            data.tokenId,
+            data.deadline,
+            data.nonce,
+            signedMint
+          )
+      ).to.be.revertedWith("nonce used");
+    });
+    it("fails with removed signer accounts", async () => {
+      await membershipManagerInstance.revokeRole(
+        await membershipManagerInstance.SIGNER_ROLE(),
+        signer2Address
+      );
+      const data = {
+        signer: signer2Address,
+        to: signer3Address,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) + 10000,
+      };
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesMint,
+        data
+      );
+      await expect(
+        membershipManagerInstance
+          .connect(signer3)
+          .mintWithSign(
+            data.signer,
+            data.to,
+            data.tokenId,
+            data.deadline,
+            data.nonce,
+            signedMint
+          )
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0xe2f4eaae4a9751e85a3e4a7b9587827a877f29914755229b07a7b2da98285f70"
+      );
+    });
+    it("enforces deadlines", async () => {
+      const data = {
+        signer: signer2Address,
+        to: signer3Address,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) - 10000,
+      };
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesMint,
+        data
+      );
+      await expect(
+        membershipManagerInstance
+          .connect(signer3)
+          .mintWithSign(
+            data.signer,
+            data.to,
+            data.tokenId,
+            data.deadline,
+            data.nonce,
+            signedMint
+          )
+      ).to.be.revertedWith("Deadline time passed");
+    });
+    it("handles invalid signatures", async () => {
+      const data = {
+        signer: signer2Address,
+        to: signer3Address,
+        tokenId: "23",
+        nonce: "1",
+        deadline: Math.floor(new Date().getTime() / 1000) + 10000,
+      };
+      const signedMint = await signer2._signTypedData(
+        domain,
+        SigningTypesMint,
+        { ...data, nonce: "9" }
+      );
+      await expect(
+        membershipManagerInstance
+          .connect(signer3)
+          .mintWithSign(
+            data.signer,
+            data.to,
+            data.tokenId,
+            data.deadline,
+            data.nonce,
+            signedMint
+          )
+      ).to.be.revertedWith("NFTPermit::mintWithSign: Invalid signature");
+    });
   });
   describe("with an nft", () => {
     beforeEach(async () => {
@@ -146,7 +276,9 @@ describe("MembershipManager", () => {
         membershipManagerInstance
           .connect(signer2)
           .transferFrom(signer2Address, signerAddress, "1")
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0be7dc2b6f1c4aa33bf833a508f2b20d047034d65c3c983b36058bc4f7d3080b"
+      );
     });
     it("allows transfers from admins", async () => {
       await membershipManagerInstance.transferFrom(
@@ -164,7 +296,9 @@ describe("MembershipManager", () => {
     it("does not allow burns from non-admins", async () => {
       await expect(
         membershipManagerInstance.connect(signer2).adminRevokeMemberships(["1"])
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWith(
+        "AccessControl: account 0x70997970c51812dc3a010c7d01b50e0d17dc79c8 is missing role 0x0be7dc2b6f1c4aa33bf833a508f2b20d047034d65c3c983b36058bc4f7d3080b"
+      );
     });
   });
 });

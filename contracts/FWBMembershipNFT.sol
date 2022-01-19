@@ -11,36 +11,34 @@ import {FWBMembershipSkeletonNFT} from "./FWBMembershipSkeletonNFT.sol";
 import {EIP712Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {SignatureCheckerUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/SignatureCheckerUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 // FWB Core membership contract (Updatable)
 contract FWBMembershipNFT is
     OwnableUpgradeable,
     FWBMembershipSkeletonNFT,
     EIP712Upgradeable,
+    AccessControlUpgradeable,
     UUPSUpgradeable
 {
+    bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
+    bytes32 public constant NFT_MANAGER_ROLE = keccak256("NFT_MANAGER_ROLE");
+
     /// @notice URLBase for metadata
     string public urlBase;
 
-    /// @notice Address for signer
-    address public signer;
-
-    /// @notice Event for when a new signer is assigned
-    event NewSigner(address indexed _signer);
-
     /// @notice Upgradeable init fn
-    function initialize(string memory _urlBase, address _signer)
+    function initialize(string memory _urlBase, address admin)
         public
         initializer
     {
-        __Ownable_init();
         __EIP712_init("FWBMembershipNFT", "1");
         __UUPSUpgradeable_init();
         __ERC165_init();
+        __AccessControl_init();
+        _grantRole(AccessControlUpgradeable.DEFAULT_ADMIN_ROLE, admin);
 
         urlBase = _urlBase;
-        signer = _signer;
-        emit NewSigner(signer);
     }
 
     /**
@@ -51,7 +49,7 @@ contract FWBMembershipNFT is
     function _authorizeUpgrade(address newImplementation)
         internal
         override
-        onlyOwner
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         // only owner can upgrade contract
     }
@@ -61,25 +59,25 @@ contract FWBMembershipNFT is
      */
 
     /// @notice admin function to update base uri
-    function updateUrlBase(string memory newUrlBase) external onlyOwner {
+    function updateUrlBase(string memory newUrlBase)
+        external
+        onlyRole(NFT_MANAGER_ROLE)
+    {
         urlBase = newUrlBase;
-    }
-
-    /// @notice An owner can set a signer user that can manage memberships
-    function setSigner(address _signer) external onlyOwner {
-        signer = _signer;
-        emit NewSigner(signer);
     }
 
     /// @notice Getter for url server nft base
     function tokenURI(uint256 id) external view returns (string memory) {
-        require(_exists(id), 'ERC721: Token does not exist');
+        require(_exists(id), "ERC721: Token does not exist");
         return
             string(abi.encodePacked(urlBase, StringsUpgradeable.toString(id)));
     }
 
     /// @notice Admin function to revoke membership for user
-    function adminRevokeMemberships(uint256[] memory ids) external onlyOwner {
+    function adminRevokeMemberships(uint256[] memory ids)
+        external
+        onlyRole(NFT_MANAGER_ROLE)
+    {
         for (uint256 i = 0; i < ids.length; i++) {
             _burn(ids[i]);
         }
@@ -95,21 +93,23 @@ contract FWBMembershipNFT is
         address from,
         address to,
         uint256 checkTokenId
-    ) external override onlyOwner {
+    ) external override onlyRole(NFT_MANAGER_ROLE) {
         uint256 tokenId = addressToId[from];
         require(checkTokenId == tokenId, "ERR: Token ID mismatch");
 
         _transferFrom(from, to, tokenId);
     }
 
-    /// Mint mew membership from the signer account
-    function adminMint(address to, uint256 id) external onlyOwner {
+    /// Mint mew membership from the manager role
+    function adminMint(address to, uint256 id)
+        external
+        onlyRole(NFT_MANAGER_ROLE)
+    {
         _safeMint(to, id);
     }
 
-
     /// @notice list of used signature nonces
-    mapping(uint256 => bool) usedNonces;
+    mapping(uint256 => bool) public usedNonces;
 
     /// @notice modifier for valid nonce with signature-based call
     modifier withValidNonceAndDeadline(uint256 nonce, uint256 deadline) {
@@ -119,20 +119,30 @@ contract FWBMembershipNFT is
         _;
     }
 
+    modifier needsRole(bytes32 role, address account) {
+        _checkRole(role, account);
+        _;
+    }
+
     /// @notice signature permitted mint function typehash
     bytes32 private immutable _PERMIT_MINT_TYPEHASH =
         keccak256(
-            "PermitMint(address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
+            "PermitMint(address signer,address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
         );
-    
+
     /// @notice Mint with signed message data
     function mintWithSign(
+        address signer,
         address to,
         uint256 tokenId,
         uint256 deadline,
         uint256 nonce,
         bytes memory signature
-    ) external withValidNonceAndDeadline(nonce, deadline) {
+    )
+        external
+        withValidNonceAndDeadline(nonce, deadline)
+        needsRole(SIGNER_ROLE, signer)
+    {
         // We allow any user to execute a signature to mint the NFt.
         require(to == msg.sender, "Needs to be receiving wallet");
 
@@ -144,6 +154,7 @@ contract FWBMembershipNFT is
                     keccak256(
                         abi.encode(
                             _PERMIT_MINT_TYPEHASH,
+                            signer,
                             to,
                             tokenId,
                             deadline,
@@ -161,19 +172,23 @@ contract FWBMembershipNFT is
 
     bytes32 private immutable _PERMIT_TRANSFER_TYPEHASH =
         keccak256(
-            "PermitTransfer(address from,address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
+            "PermitTransfer(address signer,address from,address to,uint256 tokenId,uint256 deadline,uint256 nonce)"
         );
-    
 
     /// @notice Transfer with signed message data
     function transferWithSign(
+        address signer,
         address from,
         address to,
         uint256 tokenId,
         uint256 deadline,
         uint256 nonce,
         bytes memory signature
-    ) external withValidNonceAndDeadline(nonce, deadline) {
+    )
+        external
+        withValidNonceAndDeadline(nonce, deadline)
+        needsRole(SIGNER_ROLE, signer)
+    {
         require(to == msg.sender, "Needs to be receiving wallet");
 
         require(
@@ -183,6 +198,7 @@ contract FWBMembershipNFT is
                     keccak256(
                         abi.encode(
                             _PERMIT_TRANSFER_TYPEHASH,
+                            signer,
                             from,
                             to,
                             tokenId,
@@ -197,5 +213,16 @@ contract FWBMembershipNFT is
         );
 
         _transferFrom(from, to, tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(FWBMembershipSkeletonNFT, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return
+            FWBMembershipSkeletonNFT.supportsInterface(interfaceId) ||
+            AccessControlUpgradeable.supportsInterface(interfaceId);
     }
 }
