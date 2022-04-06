@@ -7,7 +7,7 @@ import {
   FWBMembershipNFT,
   FWBMembershipNFT__factory,
 } from "../types/typechain";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const SigningTypesMint = {
   PermitMint: [
