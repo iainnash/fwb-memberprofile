@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.10;
 
 import {ERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
@@ -59,12 +59,12 @@ abstract contract FWBMembershipSkeletonNFT is
     }
 
     /// @notice approvals not supported
-    function getApproved(uint256) public view returns (address) {
+    function getApproved(uint256) public pure returns (address) {
         return address(0x0);
     }
 
     /// @notice approvals not supported
-    function isApprovedForAll(address, address) public view returns (bool) {
+    function isApprovedForAll(address, address) public pure returns (bool) {
         return false;
     }
 

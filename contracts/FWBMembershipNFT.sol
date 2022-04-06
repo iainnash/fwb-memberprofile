@@ -1,5 +1,4 @@
-// SPDX-License-Identifier: MIT
-
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.10;
 
 import {StringsUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
@@ -51,7 +50,7 @@ contract FWBMembershipNFT is
         override
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
-        // only owner can upgrade contract
+        // only owner/admin can upgrade contract
     }
 
     /**
