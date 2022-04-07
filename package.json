@@ -1,12 +1,15 @@
 {
   "name": "fwb-memberprofile-contracts",
   "author": "@iainnash",
-  "license": "GPLv3",
+  "license": "GPL-3.0-only",
   "version": "0.0.3",
   "scripts": {
-    "dev": "npx hardhat node --verbose --show-stack-traces",
-    "test": "npx hardhat test",
-    "compile": "npx hardhat compile"
+    "dev": "hardhat node --verbose --show-stack-traces",
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "typechain": "hardhat typechain",
+    "deploy": "hardhat deploy --network ",
+    "verify": "function v() { hardhat etherscan-verify --network $1; hardhat sourcify --network $1; }; v "
   },
   "files": [
     "contracts",
